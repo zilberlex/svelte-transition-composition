@@ -3,7 +3,7 @@
 This is a small library i made to help me out with transition composition.
 This is WIP and does the bare essentials to be usable.
 
-Currently works for css only.
+Currently works for css transitions only.
 
 Everything under the folder `custom-svelte-transitions` is used for transition composition.
 
