@@ -6,7 +6,7 @@ import { pulseEase, type FilterEffectTransitionParams } from "../transitions-com
 import { clippedInverseLerp } from "../math-utils";
 
 function initValues(filterEffectParams: FilterEffectTransitionParams):Required<FilterEffectTransitionParams> {
-    let { filterName, delay = 0, duration = 600, easing = linear, yoyo = true, baseVal = 1, peakVal = 2.5 } = filterEffectParams;
+    let { filterName, delay = 0, duration = 600, easing = linear, yoyo = true, baseVal = 1, peakVal = 2.5, units = '' } = filterEffectParams;
 
     if (!filterName) {
         throw new Error('filterName is required');
@@ -16,13 +16,13 @@ function initValues(filterEffectParams: FilterEffectTransitionParams):Required<F
         easing = pulseEase(easing);
     }
 
-    return { filterName, delay, duration, easing, yoyo, baseVal, peakVal };
+    return { filterName, delay, duration, easing, yoyo, baseVal, peakVal, units };
 }
 
 function createFilterFunctionForComposition(filterEffectsParams: Required<FilterEffectTransitionParams>) {
-    let { filterName, easing, baseVal, peakVal} = filterEffectsParams;
+    const { filterName, easing, baseVal, peakVal, units} = filterEffectsParams;
     
-    const filterFunction = makeFilterFunction(filterName, peakVal, baseVal);
+    const filterFunction = makeFilterFunction(filterName, peakVal, baseVal, units);
 
     return (local_t_linear: number) => {
         const ret = filterFunction(easing(local_t_linear));
@@ -35,8 +35,6 @@ export function composeFilterEffectsTransition(
         { delay = 0, duration = undefined, optimizeCss = false }: ComposedTransitionParams = {},
         filterEffectsParams: FilterEffectTransitionParams[]): (node: Element) => TransitionConfig {
     
-    
-
     let initializedFilterEffects = filterEffectsParams.map(initValues);
     let maxDuration = initializedFilterEffects.reduce((max, { delay, duration }) => Math.max(max, delay + duration), 
                                                         0);

@@ -21,6 +21,7 @@ export type FilterEffectTransitionParams = {
     yoyo?: boolean;
     baseVal?: number;
     peakVal?: number;
+    units?: string;
 }
 
 /** Creates a triangle wave easing function */
