@@ -96,11 +96,10 @@ function getLocalTandU(tGlobal: number,
  * @param transitionFuncAndParams: An array of transition functions and their params.
  * @returns A composed transition function.
  */
-export function composeTransitions(    
-    { delay = 0, duration = undefined, optimizeCss = false, reverse = false }: ComposedTransitionParams = {},  
-    transitionFuncAndParams: TransitionItem<TransitionParamsCommon>[]
-): (node: Element) => TransitionConfig {
-    return (node: Element): TransitionConfig => {
+export function composeTransitions(transitionFuncAndParams: TransitionItem<TransitionParamsCommon>[]
+): (node: Element, params?: ComposedTransitionParams) => TransitionConfig {
+    return (node: 
+            Element, { delay = 0, duration = undefined, optimizeCss = false, reverse = false, easing = linear }: ComposedTransitionParams = {}): TransitionConfig => {
         const transitionsData = 
             transitionFuncAndParams.map((transitionFuncAndParams) =>
                 createTransitionData(transitionFuncAndParams.transition, transitionFuncAndParams.params, node));
@@ -126,7 +125,7 @@ export function composeTransitions(
         return {
             delay: globalDelay,
             duration: globalDuration,
-            easing: linear,
+            easing: easing,
             css: composedTransitionsCss
         };
     };

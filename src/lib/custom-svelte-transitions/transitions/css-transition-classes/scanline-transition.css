@@ -1,0 +1,76 @@
+.scanline-transition {
+	position: relative;
+	overflow: visible;
+	--transition-scanline_pos: 0;
+	--transition-scanline_color: white;
+	--transition-scanline_background-color: transparent; 
+	--transition-scanline_width: 1px;
+	--transition-scanline_height: 100%;
+	--transition-scanline_opacity: 1;
+
+	--transition-scanline_color-rgb: from var(--transition-scanline_color) r g b;
+
+	--transition-scanline_color-highlight: hsl(
+		from var(--transition-scanline_color) h s calc(l + 20)
+	);
+
+	--transition-scanline_color-highlight-rgb: from var(--transition-scanline_color-highlight) r g b;
+
+	--effect-position-start: -2px;
+	--effect-position-end: 2px;
+	--effect-position-delta: calc(var(--effect-position-end) - var(--effect-position-start));
+	--effect-position: calc(var(--effect-position-start) + var(--transition-scanline_pos) * (100% + var(--effect-position-delta)));
+}
+
+/* Scanline */
+.scanline-transition::after {
+	content: '';
+	position: absolute;
+	height: 100%;
+	width: var(--transition-scanline_width);
+	pointer-events: none;
+
+	background-color: var(--transition-scanline_color);
+
+	top: 0;
+
+	left: var(--effect-position);
+
+	opacity: var(--transition-scanline_opacity);
+
+	animation: glow 0.5s linear infinite alternate;
+	transition: opacity 0.5s linear;
+}
+
+/* "Clipping path" in the background */
+.scanline-transition::before {
+	content: '';
+	position: absolute;
+	height: 101%;
+	pointer-events: none;
+	background-color: var(--transition-scanline_background-color);
+	
+	width: calc(1px + var(--effect-position));
+	left: -1px;
+
+	transform: translateY(-0.5%);
+}
+
+@keyframes glow {
+	0% {
+		filter: drop-shadow(0 0 2px rgb(var(--transition-scanline_color-rgb) / 0.7))
+				drop-shadow(0 0 2px rgb(var(--transition-scanline_color-rgb) / 0.6))
+				drop-shadow(0 0 4px rgb(var(--transition-scanline_color-rgb) / 0.5));
+
+		background-color: var(--transition-scanline_color);
+	}
+
+	100% {
+		filter: drop-shadow(0 0 2px rgb(var(--transition-scanline_color-rgb) / 0.9))
+				drop-shadow(0 0 2px rgb(var(--transition-scanline_color-rgb) / 0.8))
+				drop-shadow(0 0 4px rgb(var(--transition-scanline_color-rgb) / 0.7))
+				drop-shadow(0 0 10px rgb(var(--transition-scanline_color-rgb) / 0.7));
+
+		background-color: var(--transition-scanline_color-highlight);
+	}
+}

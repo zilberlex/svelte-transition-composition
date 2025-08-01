@@ -1,5 +1,5 @@
 <script lang="ts">
-    const {buttonState, transition} = $props();
+    const {buttonState, transition, transitionParams = undefined} = $props();
     
     function changeButtonStateHundler(item: any) {
         return () => {
@@ -8,7 +8,7 @@
     }
 </script>
 
-<li transition:transition>
+<li transition:transition={transitionParams}>
     <button onclick={changeButtonStateHundler(buttonState)}><em>{buttonState.name}</em> - {buttonState.isDown ? 'Down' : 'Up'}</button>
 </li>
 

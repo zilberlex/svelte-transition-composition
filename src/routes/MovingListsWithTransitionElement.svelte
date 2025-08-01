@@ -1,6 +1,7 @@
 <script>
 	import LiButtonWithTransition from "./LiButtonWithTransition.svelte";
-    const {buttonStates, transition} = $props();
+    
+    const {buttonStates, transition, transitionParams = undefined} = $props();
 
 </script>
 <div class="example-container">
@@ -9,7 +10,7 @@
             Up:
             {#each buttonStates as buttonState}
                 {#if !buttonState.isDown}
-                    <LiButtonWithTransition buttonState={buttonState} transition={transition}/>
+                    <LiButtonWithTransition buttonState={buttonState} transition={transition} transitionParams={transitionParams}/>
                 {/if}
             {/each}
         </ul>
@@ -18,7 +19,7 @@
             Down:
             {#each buttonStates as buttonState}
                 {#if buttonState.isDown}
-                    <LiButtonWithTransition buttonState={buttonState} {transition}/>
+                    <LiButtonWithTransition buttonState={buttonState} {transition} transitionParams={transitionParams}/>
                 {/if}
             {/each}
         </ul>

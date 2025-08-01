@@ -3,24 +3,56 @@ import { fade, type TransitionConfig } from 'svelte/transition';
 import type { Transition, TransitionParamsCommon } from '../transitions-common';
 
 export interface BarnDoorsTransitionParams extends TransitionParamsCommon {
-    direction?: 'close' | 'open';   
+	axis: 'x' | 'y';
+	sides: 'one' | 'both';
 }
 
 export const barnDoors: Transition<BarnDoorsTransitionParams> = (
-    node: Element,
-    { delay = 0, duration = 400, easing = linear, reverse = false }: BarnDoorsTransitionParams = {}
+	node: Element,
+	{
+		delay = 0,
+		duration = 400,
+		easing = linear,
+		reverse = false,
+		axis = 'y',
+		sides = 'both'
+	}: BarnDoorsTransitionParams = {}
 ) => {
-    const css = (t: number, u: number) => {
-        const insetPercentage = (reverse ? t : u) * 50;
-        const css = `clip-path: inset(${insetPercentage}% 0 ${insetPercentage}% 0)`;  
-        
-        return css;
-    };
+	const css = (t: number, u: number) => {
+		const insetPercentage = (reverse ? t : u) * 50;
 
-    return {
-        delay,
-        duration,
-        easing,
-        css: css
-    };
-}
+		let insetLeft = 0;
+		let insetRight = 0;
+		let insetTop = 0;
+		let insetBottom = 0;
+
+		if (sides == 'both') {
+			if (axis == 'y') {
+				insetTop = insetPercentage;
+				insetBottom = insetPercentage;
+			} else {
+				insetLeft = insetPercentage;
+				insetRight = insetPercentage;
+			}
+		} else {
+			if (axis == 'y') {
+				insetTop = insetPercentage * 2;
+			} else {
+				insetLeft = insetPercentage * 2;
+			}
+		}
+
+		const css = `clip-path: inset(${insetTop}% ${insetRight}% ${insetBottom}% ${insetLeft}%)`;
+
+		console.log('WOW ' + css);
+
+		return css;
+	};
+
+	return {
+		delay,
+		duration,
+		easing,
+		css: css
+	};
+};

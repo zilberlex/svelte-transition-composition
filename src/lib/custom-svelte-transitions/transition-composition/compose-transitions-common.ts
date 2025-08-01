@@ -18,4 +18,6 @@ export interface ComposedTransitionParams {
     /** Reverses the transitions. 
      * - Useful for Out Transitions as they are usually reversed - allows to compose from an out perpective */ 
     reverse?: boolean;
+
+    easing?: (t: number) => number;
 }

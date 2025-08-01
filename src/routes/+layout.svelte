@@ -36,7 +36,7 @@
         text-decoration: none;
         display: inline-block;
         font-size: 16px;
-        margin: 4px 2px;
+        margin: 0;
         cursor: pointer;
         border-radius: 5px;
         transition: background-color 0.3s, color 0.3s;
@@ -56,6 +56,9 @@
         flex-direction: column;
         list-style-type: none;
         align-items: center;
-        padding: 0;
+    }
+
+    :global(li) {
+        margin-block: 2px;
     }
 </style>

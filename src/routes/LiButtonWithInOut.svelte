@@ -1,5 +1,5 @@
 <script lang="ts">
-    const {buttonState, inTransition, outTransition} = $props();
+    const {buttonState, inTransition, outTransition, inTransitionParams, outTransitionParams} = $props();
     
     function changeButtonStateHundler(item: any) {
         return () => {
@@ -8,7 +8,7 @@
     }
 </script>
 
-<li in:inTransition out:outTransition>
+<li in:inTransition={inTransitionParams} out:outTransition={outTransitionParams}>
     <button onclick={changeButtonStateHundler(buttonState)}><em>{buttonState.name}</em> - {buttonState.isDown ? 'Down' : 'Up'}</button>
 </li>
 

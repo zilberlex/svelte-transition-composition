@@ -1,6 +1,6 @@
 <script>
 	import LiButtonWithInOut from "./LiButtonWithInOut.svelte";
-    const {buttonStates, inTransition, outTransition} = $props();
+    const {buttonStates, inTransition, outTransition, inTransitionParams, outTransitionParams} = $props();
 
 </script>
 <div class="example-container">
@@ -9,7 +9,7 @@
             Up:
             {#each buttonStates as buttonState}
                 {#if !buttonState.isDown}
-                    <LiButtonWithInOut buttonState={buttonState} {inTransition} {outTransition}/>
+                    <LiButtonWithInOut buttonState={buttonState} {inTransition} {outTransition} {inTransitionParams} {outTransitionParams}/>
                 {/if}
             {/each}
         </ul>
@@ -18,7 +18,7 @@
             Down:
             {#each buttonStates as buttonState}
                 {#if buttonState.isDown}
-                    <LiButtonWithInOut buttonState={buttonState} {inTransition} {outTransition}/>
+                    <LiButtonWithInOut buttonState={buttonState} {inTransition} {outTransition} {inTransitionParams} {outTransitionParams}/>
                 {/if}
             {/each}
         </ul>
