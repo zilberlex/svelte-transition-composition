@@ -1,7 +1,7 @@
 <script>
 	import { stateObject } from "$lib/example-common/button-state.svelte";
 	import MovingListsWithTransitionElement from "../MovingListsWithTransitionElement.svelte";
-	import { scanlinePass } from "$lib/custom-svelte-transitions/transitions/scanline-pass";
+	import { scanlineReveal } from "$lib/custom-svelte-transitions/transitions/scanline-pass";
 	import { linear, sineIn, sineOut } from "svelte/easing";
 	import { composeTransitions } from "$lib/custom-svelte-transitions/transition-composition/compose-transitions";
 	import { slide } from "svelte/transition";
@@ -24,7 +24,7 @@
             }
             ,
             {
-                transition: scanlinePass,
+                transition: scanlineReveal,
                 params:{
                     duration: 2000,
                     easing: sineOut,
@@ -42,18 +42,18 @@
             {
                 transition: slide,
                 params:{
-                    duration: 500,
+                    duration: 2000,
                     easing: linear,
-                    delay: 0
+                    delay: 1000
                 }
             }
             ,
             {
-                transition: scanlinePass,
+                transition: scanlineReveal,
                 params:{
-                    duration: 2000,
+                    duration: 4000,
                     easing: sineIn,
-                    delay: 1000,
+                    delay: 0,
                     color: 'var(--color2)',
                     backgroundColor: 'var(--bg)'
                 }
@@ -65,10 +65,10 @@
 <h2 class="scanline-transition">Simple Stock <em class="svelte">Svelte</em> Slide Transition:</h2>
 <MovingListsWithInOutElement 
 buttonStates={buttonsSlideTransitionArray} 
-inTransition={slideAndScanIn} 
+inTransition={() => {}}
 inTransitionParams={{easing: linear}}
 outTransition={slideOut}
-outTransitionParams={{easing: linear, reverse: true}} />
+outTransitionParams={{easing: sineIn, reverse: true}} />
 <!-- <MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={scanlinePass} transitionParams={{
                     duration: 3000,
                     easing: sineOut,

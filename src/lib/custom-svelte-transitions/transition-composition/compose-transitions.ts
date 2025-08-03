@@ -1,12 +1,62 @@
 import { linear } from 'svelte/easing'; 
-import { type TransitionConfig } from 'svelte/transition';
-import { extractLocalTAndU } from '../math-utils';
+import { type EasingFunction, type TransitionConfig } from 'svelte/transition';
+import { inverseLerp } from '../math-utils';
 import type { ComposedTransitionParams } from './compose-transitions-common';
 import type { Transition, TransitionParamsCommon } from '../transitions-common';
 
 export interface TransitionItem<P extends TransitionParamsCommon> {
     transition: Transition<P>
     params: P
+}
+
+/**
+ * Resizes an image client-side.
+ *
+ * @param params – {@link ComposedTransitionParams} describing how to resize.
+ * @param transitionFuncAndParams: An array of transition functions and their params.
+ * @returns A composed transition function.
+ */
+export function composeTransitions(transitionFuncAndParams: TransitionItem<TransitionParamsCommon>[]
+): (node: Element, params?: ComposedTransitionParams) => TransitionConfig {
+    return (node: Element, 
+            { delay = 0, duration = undefined, optimizeCss = false, reverse = false, easing = linear }: ComposedTransitionParams = {}
+    ): TransitionConfig => {
+        const transitionsData = 
+            transitionFuncAndParams.map((transitionFuncAndParams) =>
+                createTransitionData(transitionFuncAndParams.transition, transitionFuncAndParams.params, node));
+        
+        const maxTransitionDuration = transitionsData.reduce((max, transition) => {
+            const { delay, duration } = transition.params;
+            const transitionEnd = (delay ?? 0) + (duration ?? 0);
+
+            return Math.max(max, transitionEnd);
+        }, 0);
+        
+        const globalDelay = delay ?? 0;
+        const baseLineDuration = maxTransitionDuration; 
+        const globalDuration = duration ?? baseLineDuration;
+
+        let transitionIndex = 0;
+        transitionsData.forEach((transitionData) => {
+            transitionData.normalizedStart = (transitionData.params.delay) / baseLineDuration;
+            transitionData.normalizedEnd = (transitionData.params.delay + transitionData.params.duration) / baseLineDuration;
+            transitionData.index = transitionIndex++;
+            
+            let { originalCss, originalJs, normalizedStart, normalizedEnd, params} = transitionData;
+            let { reverse, easing } = params; 
+
+            transitionData.transitionCss = createTranstionCss(originalCss, normalizedStart, normalizedEnd, params.easing, params.reverse);
+            transitionData.transitionJs = createTranstionJs(originalJs, normalizedStart, normalizedEnd, params.easing, params.reverse);
+        });
+            
+        return {
+            delay: globalDelay,
+            duration: globalDuration,
+            easing: easing,
+            css: createFullCss(transitionsData, reverse),
+            tick: createFullJs(transitionsData, reverse)
+        };
+    };
 }
 
 function createTransitionData(
@@ -30,104 +80,123 @@ function createTransitionData(
     // This is important to be linear as the composition function will apply the easing to the transition by itself.
     invocationParams.easing = linear;
 
-    const { css } = transition(node, invocationParams);
+    const { css, tick } = transition(node, invocationParams);
 
 
-    const transitionCss: (t: number, u: number) => string = css
-                                                            ?  commonPrams.reverse ? (t, u) => css(u, t) : css
-                                                            : () => '';
+    // const transitionJs: (t: number, u: number) => void = tick
+    //                         ?  commonPrams.reverse ? (t, u) => tick(u, t) : tick
+    //                         : () => {};
 
     return {
         name: transition.name,
-        effectCss: transitionCss,
+        originalCss: css,
+        originalJs: tick,
         params: commonPrams,
         invocationParams: invocationParams,
         helper: {}
     };
 }
 
-function cssForComposedTransition(transitionsData: any, optimizeCss: boolean, reverse: boolean) {
+function getLocalTandU(tGlobal: number, 
+                transitionTStart: number, transitionTend: number) {  
+
+    const tLocal = inverseLerp(tGlobal, transitionTStart, transitionTend);
+    const uLocal = 1 - tLocal;
+    
+    return { tLocal, uLocal };
+}
+
+function getLocalLocalTandUWithBl(tGlobal, normalizedStart, normalizedEnd, easing, transitionReverse) {
+    let {tLocal, uLocal} = getLocalTandU(tGlobal, normalizedStart, normalizedEnd);
+ 
+    const originalTLocal: number = tLocal; 
+
+    if (tLocal < 0) {
+        tLocal = 0;
+        uLocal = 1;
+    } else if (tLocal > 1) {
+        tLocal = 1;
+        uLocal = 0;
+    } else {
+        if (easing) {
+            tLocal = easing(tLocal);  
+            uLocal = easing(uLocal);  
+        }            
+    }
+
+    if (transitionReverse) {
+        [tLocal, uLocal] = [uLocal, tLocal];
+    }
+
+    return { tLocal, uLocal, originalTLocal };
+}
+
+function createTranstionCss(transitionCssFunc: (t: number, u: number) => string | undefined, normalizedStart, normalizedEnd, easing, transitionReverse: boolean) {
+   if (!transitionCssFunc) return undefined;
+
+   return (tGlobal: number) => {
+        const {tLocal, uLocal} = getLocalLocalTandUWithBl(tGlobal, normalizedStart, normalizedEnd, easing, transitionReverse);
+
+        return transitionCssFunc(tLocal, uLocal);
+    }
+}
+
+function createTranstionJs(transitionJsFunc: (t: number, u: number) => string | undefined, normalizedStart: number, normalizedEnd: number, easing: EasingFunction, transitionReverse: boolean) {
+    if (!transitionJsFunc) return undefined;
+
+    // This to run tick at t = 0 or t = 1 because these are used to signify transition start.
+    // BUG - will cause a bug in transitions that need to run t == 0 and t == 1 only when the transition needs to start at that exact time.
+    let didRunJsStart = false;
+    let didRunJsEnd = false;
+
+    const OUT_OF_BOUNDS_THRESHOLD = 0.2;
+
     return (tGlobal: number) => {
-        tGlobal = reverse ? 1 - tGlobal : tGlobal;
+        
+        const {tLocal, uLocal, originalTLocal} = getLocalLocalTandUWithBl(tGlobal, normalizedStart, normalizedEnd, easing, transitionReverse);
 
-        const allTransitionCss = transitionsData
-            .map(({ normalizedStart, normalizedEnd, params, effectCss }) => ({ transitionStart: normalizedStart,  
-                                                       transitionEnd: normalizedEnd, 
-                                                       easing: params.easing, effectCss}))
-            .map(({transitionStart, transitionEnd, easing, effectCss}) => {
-                const localTAndU = getLocalTandU(tGlobal, transitionStart, transitionEnd, easing, optimizeCss);  
-                return localTAndU ? { localTAndU, effectCss } : null;
-            }).filter(Boolean)
-            .map(({effectCss, localTAndU}) => effectCss(localTAndU.tLocal, localTAndU.uLocal))
-            .filter(Boolean);
+        const wasOutOfBound = originalTLocal < -OUT_OF_BOUNDS_THRESHOLD || originalTLocal > 1 + OUT_OF_BOUNDS_THRESHOLD;
+        
+        if (wasOutOfBound) {
+            return;
+        }
+        
+        if (originalTLocal + OUT_OF_BOUNDS_THRESHOLD >= 0 && !didRunJsStart) {
+            didRunJsStart = true;
+            transitionJsFunc(0, 1);
+        }
+        if (tLocal == 1 && !didRunJsEnd) {
+            didRunJsEnd = true;
+            transitionJsFunc(1, 0);
+        } else if (tLocal != 0 && tLocal != 1) {
+            transitionJsFunc(tLocal, uLocal);
+        }
+    }
+}
 
+function createFullCss(transitionRunData, reverse): (tGlobal: number) => string {
+    return (tGlobal) => {
+        if (reverse)
+            tGlobal = 1 - tGlobal;
+
+        const allTransitionCss = transitionRunData
+                                    .map(({transitionCss}) => transitionCss ? transitionCss(tGlobal) : '');  
+                                    
         const fullCssOutput = allTransitionCss.join(';');
 
         return fullCssOutput;
-    };
+    }
 }
 
-function getLocalTandU(tGlobal: number, 
-                transitionTStart: number, transitionTend: number, 
-                easing: (t) => number, 
-                optimizeCss: boolean) {  
-    const alwaysRunCss = !optimizeCss;
-    const isWithinWindow = tGlobal >= transitionTStart && tGlobal <= transitionTend;
+function createFullJs(transitionRunData, globalReverse): (tGlobal: number) => void {
+    return (tGlobal: number) => {
+        if (globalReverse)
+            tGlobal = 1 - tGlobal;
 
-    if (tGlobal == 0) {
-        return { tLocal: 0, uLocal: 1 };
-    }
-
-    if (tGlobal == 1) {
-        return { tLocal: 1, uLocal: 0 }; 
-    }
-
-    if (alwaysRunCss || isWithinWindow) {
-        return extractLocalTAndU(tGlobal, transitionTStart, transitionTend, easing);
-    }
-
-    return null;
-}
-
-/**
- * Resizes an image client-side.
- *
- * @param params – {@link ComposedTransitionParams} describing how to resize.
- * @param transitionFuncAndParams: An array of transition functions and their params.
- * @returns A composed transition function.
- */
-export function composeTransitions(transitionFuncAndParams: TransitionItem<TransitionParamsCommon>[]
-): (node: Element, params?: ComposedTransitionParams) => TransitionConfig {
-    return (node: 
-            Element, { delay = 0, duration = undefined, optimizeCss = false, reverse = false, easing = linear }: ComposedTransitionParams = {}): TransitionConfig => {
-        const transitionsData = 
-            transitionFuncAndParams.map((transitionFuncAndParams) =>
-                createTransitionData(transitionFuncAndParams.transition, transitionFuncAndParams.params, node));
-        
-        const maxTransitionDuration = transitionsData.reduce((max, transition) => {
-            const { delay, duration } = transition.params;
-            const transitionEnd = (delay ?? 0) + (duration ?? 0);
-
-            return Math.max(max, transitionEnd);
-        }, 0);
-        
-        const globalDelay = delay ?? 0;
-        const baseLineDuration = maxTransitionDuration; 
-        const globalDuration = duration ?? baseLineDuration;
-
-        transitionsData.forEach((transitionData) => {
-            transitionData.normalizedStart = (transitionData.params.delay) / baseLineDuration;
-            transitionData.normalizedEnd = (transitionData.params.delay + transitionData.params.duration) / baseLineDuration;
+        transitionRunData.forEach(({transitionJs}) => {
+            if (transitionJs) {
+                transitionJs(tGlobal);
+            }
         });
-            
-        const composedTransitionsCss = cssForComposedTransition(transitionsData, optimizeCss, reverse);
-
-        return {
-            delay: globalDelay,
-            duration: globalDuration,
-            easing: easing,
-            css: composedTransitionsCss
-        };
-    };
+    }
 }
-
