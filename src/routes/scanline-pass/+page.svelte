@@ -14,16 +14,6 @@
     const slideOut = composeTransitions(
         [
             {
-                transition: slide,
-                params:{
-                    duration: 500,
-                    easing: linear,
-                    delay: 3500,
-                    reverse: true
-                }
-            }
-            ,
-            {
                 transition: scanlineReveal,
                 params:{
                     duration: 2000,
@@ -40,19 +30,10 @@
     const slideAndScanIn = composeTransitions(
         [
             {
-                transition: slide,
-                params:{
-                    duration: 2000,
-                    easing: linear,
-                    delay: 1000
-                }
-            }
-            ,
-            {
                 transition: scanlineReveal,
                 params:{
-                    duration: 4000,
-                    easing: sineIn,
+                    duration: 2000,
+                    easing: sineOut,
                     delay: 0,
                     color: 'var(--color2)',
                     backgroundColor: 'var(--bg)'
@@ -62,23 +43,58 @@
     )
 </script>
 
-<h2 class="scanline-transition">Simple Stock <em class="svelte">Svelte</em> Slide Transition:</h2>
-<MovingListsWithInOutElement 
+<h2>Simple Stock <em class="svelte">Svelte</em> Slide Transition:</h2>
+<!-- <MovingListsWithInOutElement 
 buttonStates={buttonsSlideTransitionArray} 
-inTransition={() => {}}
+inTransition={slideAndScanIn}
 inTransitionParams={{easing: linear}}
 outTransition={slideOut}
-outTransitionParams={{easing: sineIn, reverse: true}} />
-<!-- <MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={scanlinePass} transitionParams={{
-                    duration: 3000,
-                    easing: sineOut,
-                    delay: 500,
+outTransitionParams={{easing: sineIn, reverse: true}} /> -->
+
+<!-- <MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={slideAndScanIn} transitionParams={{
+                    duration: 2000,
+                    easing: linear,
+                    delay: 1000,
                     color: 'var(--color2)',
                     backgroundColor: 'var(--bg)'
 }} />  -->
 
+<MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={scanlineReveal} transitionParams={{
+                    duration: 2000,
+                    easing: sineOut,
+                    delay: 1000,
+                    color: 'var(--color2)',
+                    backgroundColor: 'var(--bg)'
+}} /> 
+
+<!-- <MovingListsWithInOutElement buttonStates={buttonsSlideTransitionArray} 
+inTransition={scanlineReveal} 
+inTransitionParams={{
+                    duration: 2000,
+                    easing: sineOut,
+                    delay: 1000,
+                    color: 'var(--color2)',
+                    backgroundColor: 'var(--bg)'
+}}
+outTransition={scanlineReveal}
+outTransitionParams={{
+                    duration: 2000,
+                    easing: sineOut,
+                    delay: 1000,
+                    color: 'var(--color2)',
+                    backgroundColor: 'var(--bg)',
+                    reverse: true
+                }} 
+/>    -->
+
+
 <style>
     h2 {
         --transition-scanline_pos: 0.5;
+        --transition-scanline_background-color: black;
+    }
+
+    .svelte {
+        color: orange;
     }
 </style>

@@ -32,6 +32,7 @@ export function composeTransitions(transitionFuncAndParams: TransitionItem<Trans
             return Math.max(max, transitionEnd);
         }, 0);
         
+        // BUG global durtaion vs relative duration needs to be fixed.
         const globalDelay = delay ?? 0;
         const baseLineDuration = maxTransitionDuration; 
         const globalDuration = duration ?? baseLineDuration;
@@ -143,7 +144,7 @@ function createTranstionCss(transitionCssFunc: (t: number, u: number) => string 
 
 function createTranstionJs(transitionJsFunc: (t: number, u: number) => string | undefined, normalizedStart: number, normalizedEnd: number, easing: EasingFunction, transitionReverse: boolean) {
     if (!transitionJsFunc) return undefined;
-
+    
     // This to run tick at t = 0 or t = 1 because these are used to signify transition start.
     // BUG - will cause a bug in transitions that need to run t == 0 and t == 1 only when the transition needs to start at that exact time.
     let didRunJsStart = false;
@@ -155,20 +156,17 @@ function createTranstionJs(transitionJsFunc: (t: number, u: number) => string | 
         
         const {tLocal, uLocal, originalTLocal} = getLocalLocalTandUWithBl(tGlobal, normalizedStart, normalizedEnd, easing, transitionReverse);
 
-        const wasOutOfBound = originalTLocal < -OUT_OF_BOUNDS_THRESHOLD || originalTLocal > 1 + OUT_OF_BOUNDS_THRESHOLD;
-        
-        if (wasOutOfBound) {
-            return;
-        }
-        
-        if (originalTLocal + OUT_OF_BOUNDS_THRESHOLD >= 0 && !didRunJsStart) {
+        const wasOutOfBound = originalTLocal > 1 || originalTLocal < 0;
+
+        // Currently starts the t==0 and t==1 only at Global(Composed) Transition start and end.
+        if (tGlobal == 0 && !didRunJsStart) {
             didRunJsStart = true;
             transitionJsFunc(0, 1);
         }
-        if (tLocal == 1 && !didRunJsEnd) {
+        if (tGlobal == 1 &&  !didRunJsEnd) {
             didRunJsEnd = true;
             transitionJsFunc(1, 0);
-        } else if (tLocal != 0 && tLocal != 1) {
+        } else if (tLocal > 0 && tLocal < 1 && !wasOutOfBound) { 
             transitionJsFunc(tLocal, uLocal);
         }
     }

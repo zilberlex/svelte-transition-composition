@@ -44,8 +44,6 @@ export const barnDoors: Transition<BarnDoorsTransitionParams> = (
 
 		const css = `clip-path: inset(${insetTop}% ${insetRight}% ${insetBottom}% ${insetLeft}%)`;
 
-		console.log('WOW ' + css);
-
 		return css;
 	};
 
