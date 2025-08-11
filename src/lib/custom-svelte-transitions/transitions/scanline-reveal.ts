@@ -1,8 +1,8 @@
 import { linear } from "svelte/easing";
 import { type TransitionConfig } from "svelte/transition";
 import type { TransitionParamsCommon } from "../transitions-common";
-import './css-transition-classes/scanline-transition.css';
-import { TransitionStartHelper } from "../transitionStartHelper";
+import './css-transition-classes/scanline-reveal.css';
+import { TransitionStartHelper } from "../transition-start-helper";
 
 export interface ScanLinePassTransitionParams extends TransitionParamsCommon {
     color?: string;

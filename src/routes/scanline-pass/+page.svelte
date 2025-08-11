@@ -1,7 +1,7 @@
 <script>
 	import { stateObject } from "$lib/example-common/button-state.svelte";
 	import MovingListsWithTransitionElement from "../MovingListsWithTransitionElement.svelte";
-	import { scanlineReveal } from "$lib/custom-svelte-transitions/transitions/scanline-pass";
+	import { scanlineReveal } from "$lib/custom-svelte-transitions/transitions/scanline-reveal";
 	import { linear, sineIn, sineOut } from "svelte/easing";
 	import { composeTransitions } from "$lib/custom-svelte-transitions/transition-composition/compose-transitions";
 	import { slide } from "svelte/transition";
