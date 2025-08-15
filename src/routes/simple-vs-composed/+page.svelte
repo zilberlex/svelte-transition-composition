@@ -41,17 +41,26 @@
     const composedInParams = {};
     // Reverse Here and in the individual transitions.
     const composedOutParams = { reverse: true};
+    let posTop = $state(0);
+
+    let h2;
+    $effect(() => {
+        h2.style.setProperty('--transition-scanline_pos', posTop.toString());
+    });
 </script>
 
-<h2 class="scanline-transition">Simple Vs Composed Page playground:</h2>
+<h2 bind:this={h2} class="scanline-transition">Simple Vs Composed Page playground:</h2>
+<input type="range" min="0" max="1" step="0.001" bind:value={posTop}>
 
 <MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={scanlineReveal} transitionParams={srParams} /> 
 
 <MovingListsWithInOutElement buttonStates={buttonsSlideTransitionArray} inTransition={composed} inTransitionParams={composedInParams} outTransition={composedOut} outTransitionParams={composedOutParams} /> 
 
+
 <style>
     h2 {
         --transition-scanline_pos: -0.01;
-        --transition-scanline_background-color: black;
+        --transition-scanline_background-color: red;
+        background-color: green;
     }
 </style>

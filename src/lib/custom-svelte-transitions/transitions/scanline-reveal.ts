@@ -19,7 +19,6 @@ export function scanlineReveal(node: Element,
 ): TransitionConfig {
     const nodeHtmlElement = node as HTMLElement;
 
-    // let currentlyShowing = false;
     if (color) {
         nodeHtmlElement.style.setProperty('--transition-scanline_color', color);
     }

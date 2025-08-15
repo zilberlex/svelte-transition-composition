@@ -32,7 +32,6 @@
 	position: absolute;
 	height: 100%;
 	width: var(--transition-scanline_width);
-	pointer-events: none;
 
 	background-color: var(--transition-scanline_color);
 
@@ -51,7 +50,6 @@
 .scanline-transition::before {
 	content: '';
 	position: absolute;
-	pointer-events: none;
 	
 	/* Covers the whole element */
 	inset: -2px;          
@@ -59,7 +57,7 @@
 	transform-origin: top;
 	transform-box: border-box;
 
-	clip-path: inset(0 calc(100% - var(--effect-position)) 0 0);
+	clip-path: inset(0 calc(100% - var(--transition-scanline_pos)*100% - 1px) 0 0);
 }
 
 @keyframes glow {

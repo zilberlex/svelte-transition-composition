@@ -10,8 +10,11 @@
     const buttonsSlideTransitionArray = $state([stateObject('One'),
                                                 stateObject('Two')]);
 
+    const buttonsSlideTransitionArray2 = $state([stateObject('One'),
+                                                stateObject('Two')]);
 
-    const slideAndScanIn = composeTransitions(
+
+    const slideAndScanIn_1 = composeTransitions(
         [
             {
                 transition: slide,
@@ -35,7 +38,31 @@
         ]
     )
 
-    const scanOut = composeTransitions(
+    const slideAndScanIn_2 = composeTransitions(
+        [
+            {
+                transition: slide,
+                params:{
+                    duration: 500,
+                    easing: sineOut,
+                    delay: 2500
+                }
+            }
+            ,
+            {
+                transition: scanlineReveal,
+                params:{
+                    duration: 2000,
+                    easing: sineOut,
+                    delay: 3000,
+                    color: 'var(--color2)',
+                    backgroundColor: 'var(--bg)'
+                }
+            }
+        ]
+    )
+
+    const slideAndScanOut = composeTransitions(
         [
             {
                 transition: slide,
@@ -63,13 +90,25 @@
 </script>
 
 <h2 class="scanline-transition">Composed <span class="color2">Scanline</span> with <span class="svelte">Slide</span> (Svelte Stock) Transition:</h2>
+<div class="option">Option1 (Simultaneous Moving, plus layout shift):</div>
 <MovingListsWithInOutElement buttonStates={buttonsSlideTransitionArray} 
-inTransition={slideAndScanIn}
+inTransition={slideAndScanIn_1}
 inTransitionParams={{easing: linear}}
-outTransition={scanOut}
+outTransition={slideAndScanOut}
+outTransitionParams={{reverse: true, easing: linear}} />
+
+<div class="option">Option2 (No layout shift, but moving elements are not simultaneous):</div>
+<MovingListsWithInOutElement buttonStates={buttonsSlideTransitionArray2} 
+inTransition={slideAndScanIn_2}
+inTransitionParams={{easing: linear}}
+outTransition={slideAndScanOut}
 outTransitionParams={{reverse: true, easing: linear}} />
 
 <style>
+    .option {
+        margin: 1rem;
+    }
+
     .svelte {
         color: orange;
     }
