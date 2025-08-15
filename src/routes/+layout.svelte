@@ -15,6 +15,10 @@
         --bg: #050505;
     }
 
+    :global(ul) {
+        padding: 0;
+    }
+
     :global(body) {
         background-color: var(--bg);
         color: var(--color1);

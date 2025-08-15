@@ -39,7 +39,8 @@ export function scanlineReveal(node: Element,
         duration,
         easing,
         css: (t, u) => {
-            return `--transition-scanline_pos: ${u}`;    
+            return `overflow-x: visible; overflow-y: clip;` +
+                   `--transition-scanline_pos: ${u}`;
         },
         tick: (t, u) => {
             if (transitionStartHelper.tryStart(t)) {

@@ -1,6 +1,10 @@
 .scanline-transition {
 	position: relative;
-	overflow: visible;
+
+	overflow-x: visible;
+	/* this is to avoid some weird but the produces a horizontal scroll when overflow x is visible bu y is hidden */
+	overflow-y: clip;
+	
 	--transition-scanline_pos: 0;
 	--transition-scanline_color: var(--color2);
 	--transition-scanline_background-color: transparent; 
@@ -47,23 +51,15 @@
 .scanline-transition::before {
 	content: '';
 	position: absolute;
-	height: 101%;
 	pointer-events: none;
-	background-color: var(--transition-scanline_background-color);
 	
-	width: calc(1px + var(--effect-position));
-	left: -1px;
+	/* Covers the whole element */
+	inset: -2px;          
+	background-color: var(--transition-scanline_background-color);
+	transform-origin: top;
+	transform-box: border-box;
 
-	transform: translateY(-0.5%);
-
-	--window: 0px;   
-	--feather: 10px;   
-
-	mask-image: linear-gradient(to right, 
-								black, 
-								black calc(100% - var(--window) - var(--feather)),
-								rgba(0,0,0,0.8) 100%);
-
+	clip-path: inset(0 calc(100% - var(--effect-position)) 0 0);
 }
 
 @keyframes glow {
@@ -88,10 +84,10 @@
 
 
 @keyframes jitter {
-  0%   { transform: translate3d(  0px,   0px, 0); }
-  20%  { transform: translate3d( .25px, -.20px, 0); }
-  40%  { transform: translate3d(-.20px,  .15px, 0); }
-  60%  { transform: translate3d( .30px,  .10px, 0); }
-  80%  { transform: translate3d(-.15px, -.25px, 0); }
-  100% { transform: translate3d(  0px,   0px, 0); }
+	0%   { transform: translate3d(  0px,   0px, 0); }
+	20%  { transform: translate3d( .25px, -.20px, 0); }
+	40%  { transform: translate3d(-.20px,  .15px, 0); }
+	60%  { transform: translate3d( .30px,  .10px, 0); }
+	80%  { transform: translate3d(-.15px, -.25px, 0); }
+	100% { transform: translate3d(  0px,   0px, 0); }
 }

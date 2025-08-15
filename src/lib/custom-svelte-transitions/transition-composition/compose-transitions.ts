@@ -44,7 +44,6 @@ export function composeTransitions(transitionFuncAndParams: TransitionItem<Trans
             transitionData.index = transitionIndex++;
             
             let { originalCss, originalJs, normalizedStart, normalizedEnd, params} = transitionData;
-            let { reverse, easing } = params; 
 
             transitionData.transitionCss = createTranstionCss(originalCss, normalizedStart, normalizedEnd, params.easing, params.reverse);
             transitionData.transitionJs = createTranstionJs(originalJs, normalizedStart, normalizedEnd, params.easing, params.reverse);
@@ -121,7 +120,7 @@ function getLocalLocalTandUWithBl(tGlobal, normalizedStart, normalizedEnd, easin
     } else {
         if (easing) {
             tLocal = easing(tLocal);  
-            uLocal = easing(uLocal);  
+            uLocal = 1 - tLocal;  
         }            
     }
 

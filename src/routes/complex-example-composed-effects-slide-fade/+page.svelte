@@ -64,12 +64,7 @@
             }]);
 
     // Main Out Transition
-    const outTransition = composeTransitions({
-            // Reverse is useful for OUT TRANSITIONs as those are played already in reverse by default - 
-            // this option effectively nullifies that.
-            reverse: true,
-        }
-        ,   
+    const outTransition = composeTransitions(   
         [
             {
                 // The duration here will determine the actual duration of the transition.
@@ -102,11 +97,10 @@
         ]
     );
 
+    const outTransitionParams = {reverse: true};
+
     // In Transition
-    const inTransition = composeTransitions({
-            reverse: false
-        }
-        ,   
+    const inTransition = composeTransitions(
         [
             {
                 transition:slide,
@@ -128,4 +122,4 @@
 </script>
 
 <h2>Complex Transition Example:</h2>
-<MovingListsWithInOutElement buttonStates={buttonStates} inTransition={inTransition} outTransition={outTransition}/>
+<MovingListsWithInOutElement buttonStates={buttonStates} inTransition={inTransition} outTransition={outTransition} inTransitionParams={undefined} {outTransitionParams} />
