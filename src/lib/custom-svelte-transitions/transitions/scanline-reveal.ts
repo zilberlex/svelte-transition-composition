@@ -60,7 +60,7 @@ export function scanlineReveal(node: Element,
                     if (graceFullyEnding) {
                         nodeHtmlElement.classList.remove('scanline-transition');
                     }
-                }, delay);
+                }, Math.max(200, delay));
             }
         }
     };
