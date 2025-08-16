@@ -54,8 +54,7 @@
 
 <MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={scanlineReveal} transitionParams={srParams} /> 
 
-<MovingListsWithInOutElement buttonStates={buttonsSlideTransitionArray} inTransition={composed} inTransitionParams={composedInParams} outTransition={composedOut} outTransitionParams={composedOutParams} /> 
-
+<MovingListsWithTransitionElement buttonStates={buttonsSlideTransitionArray} transition={composed} transitionParams={composedInParams} /> 
 
 <style>
     h2 {
