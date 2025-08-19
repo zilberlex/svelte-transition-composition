@@ -13,11 +13,8 @@ export type Transition<
   P extends TransitionParamsCommon = TransitionParamsCommon
 > = (node: Element, params?: P) => TransitionConfig
 
-export type FilterEffectTransitionParams = {
+export type FilterEffectTransitionParams = TransitionParamsCommon & {
     filterName: string;
-    delay?: number;
-    duration?: number;
-    easing?: (t: number) => number;
     yoyo?: boolean;
     baseVal?: number;
     peakVal?: number;
