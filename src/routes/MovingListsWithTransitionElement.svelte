@@ -31,6 +31,10 @@
     .example-container {
         border-bottom: 1px solid var(--color2);
         width: 100%;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .lists-container {
